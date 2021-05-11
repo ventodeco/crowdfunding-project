@@ -3,7 +3,7 @@ package user
 import "golang.org/x/crypto/bcrypt"
 
 type Service interface {
-	RegisterUser(input RegisterUserInput) (User, error)
+	RegisterUser(input RegisterUserRequest) (User, error)
 }
 
 type service struct {
@@ -14,7 +14,7 @@ func NewService(repository Repository) *service {
 	return &service{repository}
 }
 
-func (s *service) RegisterUser(input RegisterUserInput) (User, error) {
+func (s *service) RegisterUser(input RegisterUserRequest) (User, error) {
 	user := User{}
 	user.Name = input.Name
 	user.Email = input.Email
