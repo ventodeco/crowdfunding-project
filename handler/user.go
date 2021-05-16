@@ -58,8 +58,13 @@ func (h *userHandler) Login(c *gin.Context) {
 	// at service find data helping by repository with email
 	// matching data with the password
 
-	var request user.LoginRequest
+	// buat request
+	// validasi
+	// masuk ke service, masuk ke logic
+	// validasi
+	// output api
 
+	var request user.LoginRequest
 	err := c.ShouldBindJSON(&request)
 
 	if err != nil {
@@ -85,6 +90,47 @@ func (h *userHandler) Login(c *gin.Context) {
 	formatter := user.FormatUser(loggedInUser, "tokentoken")
 
 	response := helper.APIResponse("Successfully logged in", http.StatusOK, "success", formatter)
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
+	var request user.CheckEmailRequest
+
+	err := c.ShouldBindJSON(&request)
+
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Email checking failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+
+		return
+	}
+
+	IsEmailAvailable, err := h.userService.IsEmailAvailable(request)
+
+	if err != nil {
+		errorMessage := gin.H{"errors": "Server Error"}
+		response := helper.APIResponse("Email checking failed", http.StatusUnprocessableEntity, "error", errorMessage)
+
+		c.JSON(http.StatusUnprocessableEntity, response)
+
+		return
+	}
+
+	data := gin.H{
+		"is_available": IsEmailAvailable,
+	}
+
+	metaMessage := "Email address has been registered"
+
+	if IsEmailAvailable {
+		metaMessage = "Email can be register"
+	}
+
+	response := helper.APIResponse(metaMessage, http.StatusOK, "success", data)
 
 	c.JSON(http.StatusOK, response)
 }
