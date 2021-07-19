@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bwastartup/handler"
-	"bwastartup/user"
+	"crowfunding-api/handler"
+	"crowfunding-api/user"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	dsn := "root:root@tcp(127.0.0.1:3306)/bwastartup?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(127.0.0.1:3306)/crowfunding?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -20,15 +20,14 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
-
 	userHandler := handler.NewUserHandler(userService)
 
 	router := gin.Default()
 
 	api := router.Group("/api/v1")
 
-	api.POST("/users", userHandler.RegisterUser)
-	api.POST("/sessions", userHandler.Login)
+	api.POST("/register", userHandler.RegisterUser)
+	api.POST("/login", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 
 	router.Run(":12")

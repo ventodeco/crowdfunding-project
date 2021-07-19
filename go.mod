@@ -1,4 +1,4 @@
-module bwastartup
+module crowfunding-api
 
 go 1.16
 
