@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"crowfunding-api/auth"
 	"crowfunding-api/helper"
 	"crowfunding-api/user"
 	"fmt"
@@ -11,10 +12,11 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
+	return &userHandler{userService, authService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
@@ -51,7 +53,20 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(newUser, "token")
+	token, err := h.authService.GenerateToken(newUser.ID)
+
+	if err != nil {
+		response := helper.APIResponse(
+			"Register account failed.",
+			http.StatusBadRequest,
+			"error",
+			nil,
+		)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := user.FormatUser(newUser, token)
 
 	response := helper.APIResponse(
 		"Account has been registered",
@@ -85,7 +100,6 @@ func (h *userHandler) Login(c *gin.Context) {
 	loggedInUser, err := h.userService.LoginUser(request)
 
 	if err != nil {
-		fmt.Println(err)
 		errors := helper.FormatValidationError(err)
 		errorMessage := gin.H{"errors": errors}
 
@@ -99,7 +113,23 @@ func (h *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(loggedInUser, "tokentoken")
+	token, err := h.authService.GenerateToken(loggedInUser.ID)
+
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse(
+			"Login failed",
+			http.StatusUnprocessableEntity,
+			"error",
+			errorMessage,
+		)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	formatter := user.FormatUser(loggedInUser, token)
 
 	response := helper.APIResponse(
 		"Successfully logged in",
