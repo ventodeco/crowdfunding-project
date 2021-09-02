@@ -6,7 +6,6 @@ import (
 	"crowfunding-api/handler"
 	"crowfunding-api/helper"
 	"crowfunding-api/user"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -34,11 +33,9 @@ func main() {
 	authService := auth.NewService()
 	campaignService := campaign.NewService(campaignRepository)
 
-	campaigns, err := campaignService.FindCampaigns(25)
-	fmt.Println(campaigns)
-
 	// handler
 	userHandler := handler.NewUserHandler(userService, authService)
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 
 	router := gin.Default()
 
@@ -49,7 +46,9 @@ func main() {
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 
-	router.Run()
+	api.GET("/campaigns", campaignHandler.GetCampaigns)
+
+	router.Run(":12")
 }
 
 func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {
