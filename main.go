@@ -6,18 +6,27 @@ import (
 	"crowfunding-api/handler"
 	"crowfunding-api/helper"
 	"crowfunding-api/user"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 func main() {
-	dsn := "root:root@tcp(127.0.0.1:3306)/crowfunding?charset=utf8mb4&parseTime=True&loc=Local"
+	godotenv.Load()
+	dsn := fmt.Sprintf(
+		"root:root@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_DATABASE"),
+	)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -48,7 +57,7 @@ func main() {
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
 
-	router.Run(":12")
+	router.Run(":8000")
 }
 
 func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {
