@@ -35,7 +35,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	db.AutoMigrate(&user.User{})
+	db.AutoMigrate(&user.User{}, &campaign.Campaign{})
 
 	// repository
 	userRepository := user.NewRepository(db)
