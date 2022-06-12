@@ -5,6 +5,7 @@ import (
 	"crowfunding-api/campaign"
 	"crowfunding-api/handler"
 	"crowfunding-api/helper"
+	"crowfunding-api/travel"
 	"crowfunding-api/user"
 	"fmt"
 	"log"
@@ -29,26 +30,30 @@ func main() {
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_DATABASE"),
 	)
+	// dsn := fmt.Sprintf("deco:Qwerty@01@tcp(localhost:3306)/personal?charset=utf8mb4&parseTime=True&loc=Local")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	db.AutoMigrate(&user.User{}, &campaign.Campaign{})
+	db.AutoMigrate(&user.User{}, &campaign.Campaign{}, &campaign.CampaignImage{}, &travel.TravelLocation{}, &travel.Destination{}, &travel.ImageTravel{})
 
 	// repository
 	userRepository := user.NewRepository(db)
 	campaignRepository := campaign.NewRepository(db)
+	travelRepository := travel.NewRepository(db)
 
 	// service
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
 	campaignService := campaign.NewService(campaignRepository)
+	travelService := travel.NewService(travelRepository)
 
 	// handler
 	userHandler := handler.NewUserHandler(userService, authService)
 	campaignHandler := handler.NewCampaignHandler(campaignService)
+	travelHandler := handler.NewTravelHandler(travelService)
 
 	router := gin.Default()
 
@@ -60,8 +65,9 @@ func main() {
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
+	api.GET("/travels/locations", travelHandler.GetLocations)
 
-	router.Run(":8000")
+	router.Run(":5000")
 }
 
 func authMiddleware(authService auth.Service, userService user.Service) gin.HandlerFunc {
