@@ -8,8 +8,9 @@ type Service interface {
 	// LoginUser(request LoginRequest) (User, error)
 	// IsEmailAvailable(request CheckEmailRequest) (bool, error)
 	// SaveAvatar(Id int, fileLocation string) (User, error)
-	GetUserById(Id int) (TravelLocation, error)
+	GetTravelById(Id int) (TravelLocation, error)
 	GetTravelLocations() ([]TravelLocation, error)
+	UpdateTravel(Id int, like bool) (TravelLocation, error)
 }
 
 type service struct {
@@ -99,7 +100,7 @@ func NewService(repository Repository) *service {
 // 	return updatedUser, nil
 // }
 
-func (s *service) GetUserById(Id int) (TravelLocation, error) {
+func (s *service) GetTravelById(Id int) (TravelLocation, error) {
 	user, err := s.repository.FindById(Id)
 
 	if err != nil {
@@ -121,4 +122,21 @@ func (s *service) GetTravelLocations() ([]TravelLocation, error) {
 	}
 
 	return travels, nil
+}
+
+func (s *service) UpdateTravel(Id int, like bool) (TravelLocation, error) {
+
+	travel, err := s.repository.FindById(Id)
+	if err != nil {
+		return travel, err
+	}
+
+	travel.IsLiked = like
+
+	updatedTravel, err := s.repository.Update(travel)
+	if err != nil {
+		return updatedTravel, err
+	}
+
+	return updatedTravel, nil
 }

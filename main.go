@@ -66,6 +66,7 @@ func main() {
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
 	api.GET("/travels/locations", travelHandler.GetLocations)
+	api.POST("/travels/locations/:id/update", travelHandler.UpdateLike)
 
 	router.Run(":5000")
 }
