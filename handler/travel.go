@@ -35,6 +35,24 @@ func (h *travelHandler) GetLocations(c *gin.Context) {
 	c.JSON(http.StatusOK, travels)
 }
 
+// api/v1/travels/locations
+func (h *travelHandler) GetFavoriteTravel(c *gin.Context) {
+	travels, err := h.service.GetFavoriteTravel()
+	if err != nil {
+		response := helper.APIResponse(
+			"Failed to get travel location",
+			http.StatusBadRequest,
+			"error",
+			nil,
+		)
+
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	c.JSON(http.StatusOK, travels)
+}
+
 // api/v1/travels/locations/:id/update
 func (h *travelHandler) UpdateLike(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))

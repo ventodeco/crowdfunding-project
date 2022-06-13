@@ -10,6 +10,7 @@ type Service interface {
 	// SaveAvatar(Id int, fileLocation string) (User, error)
 	GetTravelById(Id int) (TravelLocation, error)
 	GetTravelLocations() ([]TravelLocation, error)
+	GetFavoriteTravel() ([]TravelLocation, error)
 	UpdateTravel(Id int, like bool) (TravelLocation, error)
 }
 
@@ -116,6 +117,16 @@ func (s *service) GetTravelById(Id int) (TravelLocation, error) {
 
 func (s *service) GetTravelLocations() ([]TravelLocation, error) {
 	travels, err := s.repository.GetAll()
+
+	if err != nil {
+		return travels, err
+	}
+
+	return travels, nil
+}
+
+func (s *service) GetFavoriteTravel() ([]TravelLocation, error) {
+	travels, err := s.repository.GetByLiked()
 
 	if err != nil {
 		return travels, err
