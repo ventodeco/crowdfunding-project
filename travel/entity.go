@@ -13,7 +13,7 @@ type TravelLocation struct {
 	LongAddress  string
 	PhoneNumber  string
 	IsLiked      bool
-	Rating       float32
+	Rating       int
 	MapUrl       string
 	Destinations []Destination
 	ImagesTravel []ImageTravel
