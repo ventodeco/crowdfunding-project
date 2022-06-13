@@ -32,7 +32,7 @@ func (r *repository) GetAll() ([]TravelLocation, error) {
 func (r *repository) GetByLiked() ([]TravelLocation, error) {
 	var travels []TravelLocation
 
-	err := r.db.Where("is_liked = true").Preload("Destinations").Find(&travels).Error
+	err := r.db.Where("is_liked = true").Preload("Destinations").Preload("ImagesTravel").Find(&travels).Error
 
 	if err != nil {
 		return travels, err
